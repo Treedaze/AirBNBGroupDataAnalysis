@@ -1,0 +1,184 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```{r}
+#imports dataset to program
+library(plotrix)
+import_AB <- read.csv("AB_NYC_2019.csv")
+#creates subsets of each listing type
+entireResidenceSubset = subset(import_AB, import_AB$room_type == "Entire home/apt",)
+privateRoomSubset = subset(import_AB, import_AB$room_type == "Private room",)
+sharedRoomSubset = subset(import_AB, import_AB$room_type == "Shared room",)
+#returns size of each subset
+entireSize = nrow(entireResidenceSubset)
+print(entireSize)
+privateSize = nrow(privateRoomSubset)
+print(privateSize)
+sharedSize = nrow(sharedRoomSubset)
+print(sharedSize)
+
+sizeOfSets = c(entireSize, privateSize, sharedSize)
+#returns mean of each subset
+mean(entireResidenceSubset$price)
+mean(privateRoomSubset$price)
+mean(sharedRoomSubset$price)
+#creates pie graph
+sizeLabels = c("Entire Residence","Private Room", "Shared Room")
+colours = c("blue3", "aquamarine", "azure4")
+pie3D(sizeOfSets, explode = 0.1, main = "Types of Rental Available in NYC on AirBNB", col = colours )
+legend("topright", pielabels, cex = 0.6,
+   fill = colours)  
+
+```
+```{r}
+#For each subset of rental type, returns how many hosts have how many listings
+library(dplyr)
+#gets frequency each host id appears
+counts = data.frame(table(entireResidenceSubset$host_id))
+freqPlot1 = table(counts$Freq)
+
+#plots frequency for entire residence subset
+barplot((freqPlot1), main = "Amount of listings on AirBNB by host: Entire Residence", ylab = "number of people", xlab = "amount of listings on AIRBNB", col = c("blue"))
+#above graph weighted to the second value
+barplot((freqPlot1), main = "\n  Amount of listings on AirBNB by host: Entire Residence \n(Weighted to second most frequent value)", ylab = "number of people", xlab = "amount of listings on AIRBNB", col = c("blue"), ylim = c(0,1000))
+
+counts = data.frame(table(privateRoomSubset$host_id))
+counts
+freqPlot2 = table(counts$Freq)
+#plots frequency for private room subset
+barplot((freqPlot2), main = "Amount of listings on AirBNB by host: Private Room", ylab = "number of people", xlab = "amount of listings on AIRBNB", col = c("green"),ylim = c(0,15000) )
+barplot((freqPlot2), main = "\nAmount of listings on AirBNB by host: Private Room \n(Weighted to second most frequent value)", ylab = "number of people", xlab = "amount of listings on AIRBNB", col = c("green"),ylim = c(0,2000) )
+
+counts = data.frame(table(sharedRoomSubset$host_id))
+counts
+freqPlot3 = table(counts$Freq)
+#plots frequency for shared room subset
+barplot((freqPlot3), main = "Amount of listings on AirBNB by host: Shared Room", ylab = "number of people", xlab = "amount of listings on AIRBNB", col = c("red"), ylim = c(0,700))
+barplot((freqPlot3), main = "\n    Amount of listings on AirBNB by host: Shared Room \n(Weighted to second most frequent value)", ylab = "number of people", xlab = "amount of listings on AIRBNB", col = c("red"), ylim = c(0,55))
+
+
+```
+
+```{r}
+#breaks subsets into  type of room by borough
+brooklynEntireSubset= subset(entireResidenceSubset, entireResidenceSubset$neighbourhood_group == "Brooklyn",)
+manhattanEntireSubset= subset(entireResidenceSubset, entireResidenceSubset$neighbourhood_group == "Manhattan",)
+queensEntireSubset= subset(entireResidenceSubset, entireResidenceSubset$neighbourhood_group == "Queens",)
+statenIslandEntireSubset= subset(entireResidenceSubset, entireResidenceSubset$neighbourhood_group == "Staten Island",)
+
+brooklynPrivateSubset= subset(privateRoomSubset, privateRoomSubset$neighbourhood_group == "Brooklyn",)
+manhattanPrivateSubset= subset(privateRoomSubset, privateRoomSubset$neighbourhood_group == "Manhattan",)
+queensPrivateSubset= subset(privateRoomSubset, privateRoomSubset$neighbourhood_group == "Queens",)
+statenIslandPrivateSubset= subset(privateRoomSubset, privateRoomSubset$neighbourhood_group == "Staten Island",)
+
+brooklynSharedSubset= subset(sharedRoomSubset, sharedRoomSubset$neighbourhood_group == "Brooklyn",)
+manhattanSharedSubset= subset(sharedRoomSubset, sharedRoomSubset$neighbourhood_group == "Manhattan",)
+queensSharedSubset= subset(sharedRoomSubset, sharedRoomSubset$neighbourhood_group == "Queens",)
+statenIslandSharedSubset= subset(sharedRoomSubset, sharedRoomSubset$neighbourhood_group == "Staten Island",)
+```
+
+
+```{r}
+#gets the availability and average price for each room type
+availabilityEntireResidencebyBorough = c((sum(brooklynEntireSubset$availability_365)), (sum(manhattanEntireSubset$availability_365)), (sum(queensEntireSubset$availability_365)) , (sum(statenIslandEntireSubset$availability_365)))
+avgpriceEntireResidencebyBorough = c((mean(brooklynEntireSubset$price)), (mean(manhattanEntireSubset$price)), (mean(queensEntireSubset$price)) , (mean(statenIslandEntireSubset$price)))
+boroughNames = c("Brooklyn", "Manhattan", "Queens", "Staten Island")
+
+availabilityPrivatebyBorough = c((sum(brooklynPrivateSubset$availability_365)), (sum(manhattanPrivateSubset$availability_365)), (sum(queensPrivateSubset$availability_365)) , (sum(statenIslandPrivateSubset$availability_365)))
+avgpricePrivatebyBorough = c((mean(brooklynPrivateSubset$price)), (mean(manhattanPrivateSubset$price)), (mean(queensPrivateSubset$price)) , (mean(statenIslandPrivateSubset$price)))
+
+availabilitySharedbyBorough = c((sum(brooklynSharedSubset$availability_365)), (sum(manhattanSharedSubset$availability_365)), (sum(queensSharedSubset$availability_365)) , (sum(statenIslandSharedSubset$availability_365)))
+avgpriceSharedbyBorough = c((mean(brooklynSharedSubset$price)), (mean(manhattanSharedSubset$price)), (mean(queensSharedSubset$price)) , (mean(statenIslandSharedSubset$price)))
+
+#average number of reviews by room type
+numReviewsEntireResidencebyBorough = c((mean(brooklynEntireSubset$number_of_reviews)), (mean(manhattanEntireSubset$number_of_reviews)), (mean(queensEntireSubset$number_of_reviews)) , (mean(statenIslandEntireSubset$number_of_reviews)))
+numReviewsPrivatebyBorough = c((mean(brooklynPrivateSubset$number_of_reviews)), (mean(manhattanPrivateSubset$number_of_reviews)), (mean(queensPrivateSubset$number_of_reviews)) , (mean(statenIslandPrivateSubset$number_of_reviews)))
+numReviewsSharedbyBorough = c((mean(brooklynSharedSubset$number_of_reviews)), (mean(manhattanSharedSubset$number_of_reviews)), (mean(queensSharedSubset$number_of_reviews)) , (mean(statenIslandSharedSubset$number_of_reviews)))
+
+#plots avg price vs availability
+plot(avgpriceEntireResidencebyBorough, availabilityEntireResidencebyBorough, main="Average Price vs Availability for Entire Residence and \nPrivate Room Rental on AirBNB, by Borough",
+   xlab="Price", ylab="Available Nights of Rental", pch=25, col="blue", xlim = c(0, 500),  cex=1)
+text(avgpriceEntireResidencebyBorough, availabilityEntireResidencebyBorough, boroughNames, cex=0.6, pos=4, col="red")
+
+legend('bottomright',inset=0.05,c("Entire Residences","Private Rooms"),col=c("blue","red") ,pch = c(25, 0),title="Type of Room")
+points(avgpricePrivatebyBorough, availabilityPrivatebyBorough, col="red", pch = 0, cex=1)
+text(avgpricePrivatebyBorough, availabilityPrivatebyBorough, boroughNames, cex=0.6, pos=4, col="black")
+#serpate graph for shared, as its values dont show up well compared to the larger catergories
+plot(avgpriceSharedbyBorough, availabilitySharedbyBorough, xlab="Price", ylab="Available Nights of Rental", pch=18, col="green", xlim = c(0, 150) , cex=1, main="\nAverage Price vs Availability for Shared Room Rental on AirBNB,\n by Borough \n")
+text(avgpriceSharedbyBorough, availabilitySharedbyBorough, boroughNames, cex=0.6, pos=4, col="blue")
+
+
+#plots avg price vs num of reviews
+plot(avgpriceEntireResidencebyBorough, numReviewsEntireResidencebyBorough, main="Average Price vs Average Number of Reviews for Entire Residence and \nPrivate Room Rental on AirBNB, by Borough",
+   xlab="Price", ylab="Average Number of Reviews", pch=25, col="blue", xlim = c(0, 500),  cex=1)
+text(avgpriceEntireResidencebyBorough, numReviewsEntireResidencebyBorough, boroughNames, cex=0.6, pos=4, col="red")
+
+legend('bottomright',inset=0.05,c("Entire Residences","Private Rooms"),col=c("blue","red") ,pch = c(25, 0),title="Type of Room")
+points(avgpricePrivatebyBorough, numReviewsPrivatebyBorough, col="red", pch = 0, cex=1)
+text(avgpricePrivatebyBorough, numReviewsPrivatebyBorough, boroughNames, cex=0.6, pos=4, col="black")
+#seperate plt for shared
+plot(avgpriceSharedbyBorough, numReviewsSharedbyBorough, xlab="Price", ylab="Average Number of Reviews", pch=18, col="green", xlim = c(0, 150) , cex=1, main="\nAverage Price vs Average Number of Reviews\n for Shared Room Rental on AirBNB,by Borough \n")
+text(avgpriceSharedbyBorough, numReviewsSharedbyBorough, boroughNames, cex=0.6, pos=4, col="blue")
+
+```
+```{r}
+
+# library
+library(ggplot2)
+
+
+#creates frame of price, num of reviews, and availabiltiy
+pricevsReviewsFrame = data.frame(import_AB$price, import_AB$number_of_reviews, import_AB$availability_365)
+#subsets data by mean price*5
+meanNumReviews = mean(pricevsReviewsFrame$import_AB.price)
+meanNumReviews
+pricevsReviewsFrame = subset(pricevsReviewsFrame, pricevsReviewsFrame$import_AB.price < (meanNumReviews*5))
+
+#plots data price vs num of reviews, coloured by availability
+thisPlot <- ggplot(data = pricevsReviewsFrame, mapping = aes(x=import_AB.price, y=import_AB.number_of_reviews)) +  geom_point(alpha = 0.4, aes(color = import_AB.availability_365),)
+
+print(thisPlot + labs(title = "             Price vs Number of Rentals vs Availability",x = "Average Price of Rentals", y = "Number of Reviews", color = "Availability"))
+
+
+
+                       
+library("scales")
+lastReviewVSNUmberofReviewsFrame = data.frame(import_AB$last_review, import_AB$number_of_reviews, import_AB$price)
+#removes null values
+lastReviewVSNUmberofReviewsFrame = subset(lastReviewVSNUmberofReviewsFrame, lastReviewVSNUmberofReviewsFrame$import_AB.last_review != "")
+
+print ("Date Type is")
+class(lastReviewVSNUmberofReviewsFrame$import_AB.last_review)
+
+#changes review column to date class
+lastReviewVSNUmberofReviewsFrame$import_AB.last_review = as.Date(lastReviewVSNUmberofReviewsFrame$import_AB.last_review,
+                        format = "%Y-%m-%d")
+#returns new class type
+print ("Date Type is")
+class(lastReviewVSNUmberofReviewsFrame$import_AB.last_review)
+#take mean price, then removes all entries that are greater than mean price*5. Makes the price data a lot more readable
+meanPrice = mean(lastReviewVSNUmberofReviewsFrame$import_AB.price)
+lastReviewVSNUmberofReviewsFrame = subset(lastReviewVSNUmberofReviewsFrame, lastReviewVSNUmberofReviewsFrame$import_AB.price < (meanPrice*5))
+#plots last review vs number of reviews vs price
+thatPlot <- ggplot(data = lastReviewVSNUmberofReviewsFrame, mapping = aes(x=import_AB.last_review, y=import_AB.number_of_reviews)) +  geom_point(alpha = 0.4,aes(color = import_AB.price) )
+
+newPlot = thatPlot + ylim(0, 500)
+newPlot = newPlot + scale_x_date(limits = as.Date(c("2015-01-01", "2019-12-30")))
+print(newPlot + labs(title = "             Number of Rentals vs Last Review vs Price",y = "Number of Reviews", x = "Last Review", color = "Price"))
+```
+

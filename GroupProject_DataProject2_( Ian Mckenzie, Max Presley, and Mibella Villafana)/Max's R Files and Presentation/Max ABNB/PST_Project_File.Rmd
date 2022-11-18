@@ -1,0 +1,82 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+# Import and create dataframe then print sheet
+data <- read.csv(file = 'AB_NYC_2019.csv')
+print(data)
+```
+
+```{r}
+#replacing NA's with 0 
+data[is.na(data)] = 0
+```
+
+```{r}
+# Print the top 3 most expensive
+retval <- subset(data, price == max(price))
+print(retval)
+
+min(data$price)
+```
+
+```{r}
+# Find mean then print
+result_mean <- mean(data$price)
+result_median <- median(data$price)
+result_mean <-round(result_mean, digits = 0)
+result_median <- round(result_median, digits = 0)
+print(result_mean)
+print(result_median)
+
+```
+
+```{r}
+library(dplyr)
+
+group_region = data %>% group_by(neighbourhood_group)  %>%
+                    summarise(Mean = mean(price),
+                              Median = median(price),
+                              .groups = 'drop')
+group_region$Mean <-round(group_region$Mean, digits = 0)
+print(group_region)
+```
+
+```{r}
+library(dplyr)
+
+
+neighbourhood = data %>% group_by(neighbourhood)  %>%
+                    summarise(Mean = mean(price), 
+                              Median = median(price), Total = sum(price)/Mean,
+                              .groups = 'drop')
+neighbourhood$Mean <-round(neighbourhood$Mean, digits = 0)
+neighbourhood$Median <-round(neighbourhood$Median, digits = 0)
+
+arrangedmedian <- arrange(neighbourhood, desc(Median))
+arrangedmean <- arrange(neighbourhood, desc(Mean))
+
+print(arrangedmedian)
+print(arrangedmean)
+
+headofarranged <- head(top10,25)
+print(headofarranged)
+
+```
+
+```{r}
+# Load ggplot2
+library(ggplot2)
+
+
+# Barplot
+ggplot(headofarranged, aes(x=as.factor(neighbourhood), y=Median, fill=as.factor(neighbourhood) )) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Graph of most expensive neighbourhoods" ) +
+  xlab("Neighbourhood") + ylab("Price")
+```

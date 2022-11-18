@@ -1,0 +1,186 @@
+
+```{r}
+#imports dataset to program
+library(plotrix)
+library(dplyr)
+library(tidyr)
+attach(import_AB)
+
+library(ggplot2)
+
+
+library(readr)
+import_AB <- read_csv("AB_NYC_20192_3_1.csv")
+#View(AB_NYC_20192_3_1_)
+
+print(import_AB)
+
+```
+```{r}
+
+entireResidenceSubset = subset(import_AB, import_AB$room_type == "Entire home/apt",)
+privateRoomSubset = subset(import_AB, import_AB$room_type == "Private room",)
+sharedRoomSubset = subset(import_AB, import_AB$room_type == "Shared room",)
+
+entireSize = length(entireResidenceSubset)
+privateSize = length(privateRoomSubset)
+sharedSize = length(sharedRoomSubset)
+
+sizeOfSets = c(entireSize, privateSize, sharedSize)
+
+sizeLabels = c("Entire Residence","Private Room", "Shared Room")
+colours = c("aquamarine", "blue4", "azure4")
+pie3D(sizeOfSets, labels = sizeLabels,explode = 0.1, main = "Types of Rental Availanble in NYC on AirBNB", col =  )
+
+print(import_AB)
+```
+
+
+```{r}
+summary (import_AB)
+```
+
+```{r}
+library(dplyr)
+counts = data.frame(table(entireResidenceSubset$host_id))
+counts
+freqPlot1 = table(counts$Freq)
+
+barplot((freqPlot1), main = "Amount of listings on AirBNB by host: Entire Residence", ylab = "number of people", xlab = "amount of listings on AIRBNB")
+
+counts = data.frame(table(privateRoomSubset$host_id))
+counts
+freqPlot2 = table(counts$Freq)
+
+barplot((freqPlot2), main = "Amount of listings on AirBNB by host: Private Room", ylab = "number of people", xlab = "amount of listings on AIRBNB")
+
+counts = data.frame(table(sharedRoomSubset$host_id))
+counts
+freqPlot3 = table(counts$Freq)
+
+barplot((freqPlot3), main = "Amount of listings on AirBNB by host: Shared Room", ylab = "number of people", xlab = "amount of listings on AIRBNB")
+```
+
+```{r}
+```
+
+
+```{r}
+import_AB<-subset(import_AB,room_type=="Entire home/apt")
+mean(import_AB$price)
+print(import_AB)
+```
+
+```{r}
+import_AB<-subset(import_AB,room_type=="Private room")
+mean(import_AB$price)
+print(import_AB)
+
+```
+```{r}
+import_AB<-subset(import_AB,room_type=="Shared room")
+mean(import_AB$price)
+print(import_AB)
+```
+
+```{r}
+subset1 <- select(import_AB, number_of_reviews, availability_365,neighbourhood_group)
+print(subset1)
+```
+
+
+```{r}
+ggplot(import_AB,aes(x=number_of_reviews,y=availability_365, col= neighbourhood_group))+stat_binhex()
+```
+
+```{r}
+mean.prices <- c(211, 90, 70)
+barplot(mean.prices,
+main = "Mean prices for each room type",
+xlab = "Price",
+ylab = "Room Type",
+names.arg = c("Entire", "Private", "Shared"),
+col = "darkred",
+horiz = TRUE)
+
+```
+```{r}
+subset2 <- select(entireResidenceSubset, minimum_nights, price)
+summary(subset2)
+print(subset2)
+```
+```{r}
+subset3 <- select(privateRoomSubset, minimum_nights, price)
+summary(subset3)
+print(subset3)
+```
+
+```{r}
+subset4 <- select(sharedRoomSubset, minimum_nights, price)
+summary(subset4)
+print(subset4)
+```
+
+```{r}
+
+
+
+table2 <- import_AB%>% group_by(minimum_nights) %>%
+  summarise(avg_price= mean(price))
+table2
+
+table2 %>% ggplot(aes(x=minimum_nights, y=avg_price )) +
+  
+  geom_col(aes(fill=minimum_nights)) +
+    xlim(0,300)+
+   xlab("Minimum Night Stay") + ylab("Average Price")
+
+
+```
+
+
+```{r}
+
+table2 <- import_AB%>% group_by(minimum_nights) %>%
+  summarise(avg_price= mean(price))
+table2
+
+table2 %>% ggplot(aes(x=minimum_nights, y=avg_price )) +
+  
+  geom_col(aes(fill=minimum_nights)) +
+    xlim(0,45)+
+  xlab("Minimum Night Stay") + ylab("Average Price")
+
+```
+
+
+```{r}
+#reduced the outliers to keep only 0-60 min nights
+#used subsets to break up the data and get better visualisation 
+x<- entireResidenceSubset$minimum_nights
+y<-entireResidenceSubset$price
+plot(x, y, main = "Entire Residence",
+     xlab = "Minimum Nights", ylab = "Price", xlim= c(0,60),
+     pch = 20, frame = FALSE)
+lines(lowess(x, y), col = "blue")
+
+```
+```{r}
+
+x<- privateRoomSubset$minimum_nights
+y<-privateRoomSubset$price
+plot(x, y, main = "Private Room",
+     xlab = "Minimum Nights", ylab = "Price", xlim= c(0,60), ylim=c(0,8000), 
+     pch = 20, frame = FALSE)
+lines(lowess(x, y), col = "blue")
+```
+
+```{r}
+x<- sharedRoomSubset$minimum_nights
+y<-sharedRoomSubset$price
+plot(x, y, main = "Shared Room",
+     xlab = "Minimum Nights", ylab = "Price", xlim= c(0,60), ylim = c(0,1500),
+     pch = 20, frame = FALSE)
+lines(lowess(x, y), col = "blue")
+```
+
